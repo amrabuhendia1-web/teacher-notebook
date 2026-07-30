@@ -15,16 +15,16 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.x'
+          channel: 'stable'
 
-      - name: Create Android project files
-        run: flutter create --force --project-name=teacher_app --org=com.teacher .
+      - name: Create Android Structure
+        run: flutter create .
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
+        run: flutter build apk --release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4

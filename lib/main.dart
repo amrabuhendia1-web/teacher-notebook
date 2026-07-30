@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:provider/provider.dart';
 
 // --- الألوان والمظهر ---
@@ -21,7 +20,10 @@ class AppColors {
   static const primaryDark = Color(0xFFBB86FC);
 }
 
-void main() {
+void main() async {
+  // 1. السطر الأساسي لمنع الشاشة الرمادية عند فتح الذاكرة
+  WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(
     ChangeNotifierProvider(
       create: (_) => AppState()..loadData(),
@@ -144,7 +146,7 @@ class AttendanceRecord {
   int month;
   int session;
   String date;
-  Map<String, String> studentStatus; // studentId : status
+  Map<String, String> studentStatus;
   AttendanceRecord({required this.month, required this.session, required this.date, required this.studentStatus});
   Map<String, dynamic> toJson() => {'month': month, 'session': session, 'date': date, 'studentStatus': studentStatus};
   factory AttendanceRecord.fromJson(Map<String, dynamic> json) => AttendanceRecord(
@@ -238,7 +240,8 @@ class DashboardScreen extends StatelessWidget {
     final now = DateTime.now();
     final daysArabic = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
     final todayName = daysArabic[now.weekday % 7];
-    final todayDate = intl.DateFormat.yMMMMEEEEd('ar').format(now);
+    // صياغة آمنة للتاريخ بدون الاعتماد على مكتبات خارجية قد تسبب كراش
+    final todayDate = "${now.year} / ${now.month} / ${now.day}";
 
     final todayGroups = state.groups.where((g) => g.sessions.any((s) => s.day == todayName)).toList();
     final otherGroups = state.groups.where((g) => !g.sessions.any((s) => s.day == todayName)).toList();
@@ -270,7 +273,7 @@ class DashboardScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.all(15),
               children: [
-                _buildSectionTitle('مجموعات اليوم', Icons.calendar_today),
+                _buildSectionTitle('مجموعات اليوم ($todayName)', Icons.calendar_today),
                 if (todayGroups.isEmpty)
                   const Padding(padding: EdgeInsets.all(20), child: Center(child: Text('لا توجد مجموعات اليوم'))),
                 ...todayGroups.map((g) => _buildGroupCard(context, g)),
@@ -468,12 +471,13 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
   void _saveAttendance(BuildContext context, Group g) {
     final state = context.read<AppState>();
-    final now = intl.DateFormat.yMMMMEEEEd('ar').format(DateTime.now());
+    final now = DateTime.now();
+    final dateStr = "${now.year}/${now.month}/${now.day}";
     
     final record = AttendanceRecord(
       month: g.currentMonth,
       session: g.currentSession,
-      date: now,
+      date: dateStr,
       studentStatus: Map.from(currentStatus),
     );
 

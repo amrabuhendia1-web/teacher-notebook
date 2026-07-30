@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:provider/provider.dart';
 
-// --- الألوان والمظهر (المستمدة من CSS) ---
+// --- الألوان والمظهر ---
 class AppColors {
   static const primary = Color(0xFF2563EB);
   static const secondary = Color(0xFF10B981);
@@ -44,13 +44,11 @@ class TeacherApp extends StatelessWidget {
         brightness: Brightness.light,
         scaffoldBackgroundColor: AppColors.bgLight,
         primaryColor: AppColors.primary,
-        fontFamily: 'Cairo', // تأكد من إضافة الخط في pubspec
       ),
       darkTheme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.bgDark,
         primaryColor: AppColors.primaryDark,
-        fontFamily: 'Cairo',
       ),
       builder: (context, child) {
         return Directionality(
@@ -308,7 +306,7 @@ class DashboardScreen extends StatelessWidget {
         child: Column(
           children: [
             Row(
-              justifyAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(g.name, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
                 Container(
@@ -481,13 +479,11 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
 
     g.attendanceHistory.add(record);
     
-    // تسجيل الدفع
     for (var sid in currentPaid) {
       final s = g.students.firstWhere((st) => st.id == sid);
       if (!s.paidMonths.contains(g.currentMonth)) s.paidMonths.add(g.currentMonth);
     }
 
-    // تحديث الحصة والشهر
     final max = g.system == 1 ? 4 : 8;
     if (g.currentSession < max) {
       g.currentSession++;
@@ -607,9 +603,6 @@ class _AddGroupScreenState extends State<AddGroupScreen> {
   }
 }
 
-// --- شاشات أخرى (Finance, Notes, Settings) ---
-// تم اختصارها هنا لتوفير المساحة ولكنها تتبع نفس منطق الـ HTML المرفق
-
 class FinanceMainScreen extends StatelessWidget {
   const FinanceMainScreen({super.key});
 
@@ -673,7 +666,6 @@ class FinanceGroupScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = context.watch<AppState>();
     final g = state.activeGroup!;
-    double share = g.students.isEmpty ? 0 : g.price / g.students.length;
 
     return Scaffold(
       appBar: AppBar(title: Text('ماليات: ${g.name}')),
@@ -816,3 +808,4 @@ class EditGroupScreen extends StatelessWidget {
       ),
     );
   }
+}

@@ -17,17 +17,19 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Create Android Structure
-        run: flutter create .
-
-      - name: Install Dependencies
-        run: flutter pub get
-
       - name: Build APK
-        run: flutter build apk --release
+        run: |
+          flutter create myapp
+          cp lib/main.dart myapp/lib/main.dart
+          cd myapp
+          flutter pub add shared_preferences intl provider
+          flutter build apk --release --no-tree-shake-icons
+          cd ..
+          mkdir -p output
+          cp myapp/build/app/outputs/flutter-apk/app-release.apk output/app-release.apk
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Teacher-App-APK
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: output/app-release.apk
